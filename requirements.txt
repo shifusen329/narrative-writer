@@ -1,0 +1,8 @@
+python-dotenv>=1.0.0
+anthropic>=0.8.0  # Claude 3 API
+openai>=1.0.0    # GPT-4 API
+google-generativeai>=0.3.0  # Gemini API
+tiktoken>=0.5.0  # Token counting
+novelai-api>=1.0.0  # NovelAI API
+aiohttp>=3.8.0  # For async HTTP requests
+pytest>=7.0.0    # Testing

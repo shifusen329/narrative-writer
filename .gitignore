@@ -1,0 +1,37 @@
+# Environment
+.env
+venv/
+__pycache__/
+*.pyc
+
+# Test outputs and samples
+gpt4_output.txt
+gpt35_output.txt
+gpt35_test.txt
+clean_test.txt
+narrative.txt
+run*_narrative.txt
+run*.json
+test_input.json
+preprocessed/preprocessed_*.json
+langsmith_test.txt
+trace_test.txt
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Logs
+*.log
