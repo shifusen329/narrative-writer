@@ -91,6 +91,17 @@ class TokenCounter:
         effective_limit = int(self.max_tokens * 0.8)
         return (total_tokens + effective_limit - 1) // effective_limit
     
+    def count_tokens(self, text: str) -> int:
+        """Count tokens in text using provider's counter.
+        
+        Args:
+            text: Text to count tokens for
+            
+        Returns:
+            Number of tokens in the text
+        """
+        return self.provider.count_tokens(text)
+    
     def will_fit_in_context(self, text: str) -> bool:
         """Check if text will fit within token limit.
         
