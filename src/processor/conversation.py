@@ -158,26 +158,29 @@ moments are preserved."""
                 
                 # Count output tokens and update totals
                 output_tokens = self.token_counter.count_tokens(narrative_part)
-                self.token_counter.add_usage(input_tokens, output_tokens)
+                usage = self.token_counter.add_usage(input_tokens, output_tokens)
                 
                 # Show chunk usage
-                costs = self.llm.calculate_cost(input_tokens, output_tokens)
-                if 'subscription' in costs:
-                    print(f"  Input:  {input_tokens:,} tokens")
-                    print(f"  Output: {output_tokens:,} tokens")
-                    print(f"  Total:  {input_tokens + output_tokens:,} tokens")
-                else:
-                    print(f"  Input:  {input_tokens:,} tokens (${costs['input_cost']:.4f})")
-                    print(f"  Output: {output_tokens:,} tokens (${costs['output_cost']:.4f})")
-                    print(f"  Total:  {input_tokens + output_tokens:,} tokens (${costs['total_cost']:.4f})")
-            
-            # Show cumulative usage
-            usage = self.token_counter.get_cumulative_usage()
-            print(f"\nCumulative usage for {model_info}:")
-            print(f"  Input:  {usage['total_input_tokens']:,} tokens")
-            print(f"  Output: {usage['total_output_tokens']:,} tokens")
-            print(f"  Total:  {usage['total_tokens']:,} tokens")
-            print(f"  Cost:   {usage['cost']}")
+                chunk_stats = usage['chunk']
+                print(f"\nCurrent chunk:")
+                print(f"  Input:  {chunk_stats['input_tokens']:,} tokens")
+                print(f"  Output: {chunk_stats['output_tokens']:,} tokens")
+                print(f"  Total:  {chunk_stats['total_tokens']:,} tokens")
+                print(f"  Context: {chunk_stats['context_percent']:.1f}% of window")
+                
+                # Show running totals
+                running = usage['running']
+                context = running['context_info']
+                print(f"\nRunning totals:")
+                print(f"  Input:  {running['input_tokens']:,} tokens")
+                print(f"  Output: {running['output_tokens']:,} tokens")
+                print(f"  Total:  {running['total_tokens']:,} tokens")
+                print(f"  Cost:   {running['cost']}")
+                
+                # Warn if approaching context limits
+                if context['max_percent'] > 80:
+                    print(f"\nWarning: Used {context['max_percent']:.1f}% of context window")
+                    print(f"Peak usage: {context['max_used']:,} tokens at total token {context['at_tokens']:,}")
         
         # Save narrative
         FileHandler.save_narrative(narrative, output_file)

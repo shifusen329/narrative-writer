@@ -181,15 +181,6 @@ class OpenAIProvider(LLMProvider):
             
             # Count output tokens and calculate cost
             output_text = response.choices[0].message.content
-            output_tokens = self.count_tokens(output_text)
-            
-            costs = self.calculate_cost(input_tokens, output_tokens)
-            
-            print(f"\nTokens used:")
-            print(f"  Input:  {input_tokens:,} tokens (${costs['input_cost']:.4f})")
-            print(f"  Output: {output_tokens:,} tokens (${costs['output_cost']:.4f})")
-            print(f"  Total:  {input_tokens + output_tokens:,} tokens (${costs['total_cost']:.4f})\n")
-            
             return output_text
             
         except Exception as e:
@@ -307,17 +298,8 @@ class AnthropicProvider(LLMProvider):
                 ]
             )
             
-            # Count output tokens and calculate cost
+            # Get output text
             output_text = message.content[0].text
-            output_tokens = self.count_tokens(output_text)
-            
-            costs = self.calculate_cost(input_tokens, output_tokens)
-            
-            print(f"\nTokens used:")
-            print(f"  Input:  {input_tokens:,} tokens (${costs['input_cost']:.4f})")
-            print(f"  Output: {output_tokens:,} tokens (${costs['output_cost']:.4f})")
-            print(f"  Total:  {input_tokens + output_tokens:,} tokens (${costs['total_cost']:.4f})\n")
-            
             return output_text
             
         except Exception as e:
@@ -460,17 +442,8 @@ class GeminiProvider(LLMProvider):
                 )
             )
             
-            # Count output tokens and calculate cost
+            # Get output text
             output_text = response.text
-            output_tokens = self.count_tokens(output_text)
-            
-            costs = self.calculate_cost(input_tokens, output_tokens)
-            
-            print(f"\nTokens used:")
-            print(f"  Input:  {input_tokens:,} tokens (${costs['input_cost']:.4f})")
-            print(f"  Output: {output_tokens:,} tokens (${costs['output_cost']:.4f})")
-            print(f"  Total:  {input_tokens + output_tokens:,} tokens (${costs['total_cost']:.4f})\n")
-            
             return output_text
             
         except Exception as e:

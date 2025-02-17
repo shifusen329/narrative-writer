@@ -25,7 +25,11 @@ class TokenCounter:
         self.total_output_tokens = 0
         self.total_cost = 0.0
         
-    def add_usage(self, input_tokens: int, output_tokens: int) -> None:
+        # Track context window usage
+        self.max_context_used = 0
+        self.max_context_chunk = 0
+        
+    def add_usage(self, input_tokens: int, output_tokens: int) -> Dict[str, Any]:
         """Add token usage to cumulative totals.
         
         Args:
@@ -35,34 +39,52 @@ class TokenCounter:
         self.total_input_tokens += input_tokens
         self.total_output_tokens += output_tokens
         
+        # Update context window tracking
+        chunk_total = input_tokens + output_tokens
+        if chunk_total > self.max_context_used:
+            self.max_context_used = chunk_total
+            self.max_context_chunk = self.total_input_tokens + self.total_output_tokens
+        
         # Calculate cost if not subscription-based
         costs = self.provider.calculate_cost(input_tokens, output_tokens)
         if 'subscription' not in costs:
             self.total_cost += costs['total_cost']
+            
+        # Return current chunk stats
+        return {
+            'chunk': {
+                'input_tokens': input_tokens,
+                'output_tokens': output_tokens,
+                'total_tokens': chunk_total,
+                'context_percent': (chunk_total / self.max_tokens) * 100
+            },
+            'running': self.get_running_totals()
+        }
     
-    def get_cumulative_usage(self) -> Dict[str, Any]:
-        """Get cumulative token usage and cost.
+    def get_running_totals(self) -> Dict[str, Any]:
+        """Get running token totals and context usage.
         
         Returns:
-            Dictionary containing total tokens and cost
+            Dictionary with running totals and context info
         """
+        total_tokens = self.total_input_tokens + self.total_output_tokens
         costs = self.provider.calculate_cost(
             self.total_input_tokens,
             self.total_output_tokens
         )
         
-        usage = {
-            'total_input_tokens': self.total_input_tokens,
-            'total_output_tokens': self.total_output_tokens,
-            'total_tokens': self.total_input_tokens + self.total_output_tokens,
+        return {
+            'input_tokens': self.total_input_tokens,
+            'output_tokens': self.total_output_tokens,
+            'total_tokens': total_tokens,
+            'cost': costs.get('subscription', f"${self.total_cost:.4f}"),
+            'context_info': {
+                'max_used': self.max_context_used,
+                'max_allowed': self.max_tokens,
+                'max_percent': (self.max_context_used / self.max_tokens) * 100,
+                'at_tokens': self.max_context_chunk
+            }
         }
-        
-        if 'subscription' in costs:
-            usage['cost'] = costs['subscription']
-        else:
-            usage['cost'] = f"${self.total_cost:.4f}"
-        
-        return usage
     
     def count_conversation_tokens(self, conversation: List[Dict[str, str]]) -> int:
         """Count tokens in a conversation.
